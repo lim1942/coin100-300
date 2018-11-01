@@ -6,6 +6,7 @@ from tools import my_mq, my_format ,json_download
 from tools import DepthItem ,TickerItem ,TradeItem, Symbols 
 
 
+
 file_name = os.path.basename(__file__).split('.')[0]
 DepthItem = DepthItem + '_' + file_name
 TickerItem = TickerItem + '_' + file_name
