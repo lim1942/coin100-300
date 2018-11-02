@@ -29,25 +29,28 @@ def parse(exchange_id,exchange_name=file_name):
     symbols =  []
 
     # 1
-    url = 
+    url = 'https://api.idex.market/returnTicker'
     res = json_download(url)
     # 2
-    res = 
-    for i in res:
+    res = res.items()
+    for k,v in res:
+
         #3
-        price = 
-        #4
-        subject = 
+        subject = (k.split('_')[1]+k.split('_')[0]).upper()
         symbols.append(subject)
+        #
+        price = v["last"]
+        if price == 'N/A':
+            continue 
         
         unit = my_format_obj.get_unit(price)
         ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
-        # tickers_mq.send_message(ticker_message)
+        tickers_mq.send_message(ticker_message)
         tickers.append(ticker_message)
 
 
     symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
-    # symbols_mq.send_message(symbols_message)
+    symbols_mq.send_message(symbols_message)
 
     print(symbols_message,'\n')
     print(tickers)
@@ -59,5 +62,5 @@ if __name__ == '__main__':
     print(file_name,'\n')
 
     #5
-    exchange_id = 
+    exchange_id = '130'
     parse(exchange_id)
