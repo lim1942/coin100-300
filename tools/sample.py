@@ -16,6 +16,7 @@ Symbols = Symbols + '_' + file_name
 
 
 
+
 def parse(exchange_id,exchange_name=file_name):
 
     my_format_obj = my_format()
