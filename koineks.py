@@ -28,25 +28,26 @@ def parse(exchange_id,exchange_name=file_name):
     symbols =  []
 
     # 1
-    url = 
+    url = 'https://koineks.com/ticker'
     res = json_download(url)
     # 2
-    res = 
+    res = res.values()
     for i in res:
         #3
-        price = 
+        price = i['current']
         #4
-        subject = 
+        subject = (i['short_code'] +'^'+ i['currency']).upper()
+        ts = my_format_obj.get_13_str_time(i['timestamp'])
         symbols.append(subject)
         
         unit = my_format_obj.get_unit(price)
         ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
-        # tickers_mq.send_message(ticker_message)
+        tickers_mq.send_message(ticker_message)
         tickers.append(ticker_message)
 
 
     symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
-    # symbols_mq.send_message(symbols_message)
+    symbols_mq.send_message(symbols_message)
 
     print(symbols_message,'\n')
     print(tickers)
@@ -59,5 +60,5 @@ if __name__ == '__main__':
     print(file_name,'\n')
 
     #5
-    exchange_id = 
+    exchange_id = '118'
     parse(exchange_id)

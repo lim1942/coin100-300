@@ -25,6 +25,10 @@ SOCK_PROXIES = {
 }
 
 
+HEADERS = {
+"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
+}
+
 
 class my_mq:
 
@@ -201,7 +205,7 @@ def json_download(url,method='get',data={},params={},headers={},cookies={},proxi
                     res = json.loads(r.text)
                 else:
                     raise Exception('get request error !!')
-            if isinstance(res,dict):
+            if isinstance(res,dict) or isinstance(res,list):
                 return res
             else:
                 raise Exception('response not dict error !!')

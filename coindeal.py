@@ -4,7 +4,7 @@ import requests
 from lxml import etree
 
 from tools import my_mq, my_format ,json_download, html_download, my_websocket
-from tools import DepthItem ,TickerItem ,TradeItem, Symbols ,SOCK_PROXIES, HEADERS
+from tools import DepthItem ,TickerItem ,TradeItem, Symbols ,SOCK_PROXIES
 
 
 file_name = os.path.basename(__file__).split('.')[0]
@@ -28,25 +28,24 @@ def parse(exchange_id,exchange_name=file_name):
     symbols =  []
 
     # 1
-    url = 
-    res = json_download(url)
+    url = 'https://europe1.coindeal.com/api/v1/markets/list'
+    res = json_download(url,proxies=SOCK_PROXIES)
     # 2
-    res = 
     for i in res:
         #3
-        price = 
+        price = i['lastPrice']
         #4
-        subject = 
+        subject = (i['quoteCurrency']+'^'+ i['baseCurrency']).upper()
         symbols.append(subject)
         
         unit = my_format_obj.get_unit(price)
         ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
-        # tickers_mq.send_message(ticker_message)
+        tickers_mq.send_message(ticker_message)
         tickers.append(ticker_message)
 
 
     symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
-    # symbols_mq.send_message(symbols_message)
+    symbols_mq.send_message(symbols_message)
 
     print(symbols_message,'\n')
     print(tickers)
@@ -59,5 +58,5 @@ if __name__ == '__main__':
     print(file_name,'\n')
 
     #5
-    exchange_id = 
+    exchange_id = '116'
     parse(exchange_id)

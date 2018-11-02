@@ -28,25 +28,25 @@ def parse(exchange_id,exchange_name=file_name):
     symbols =  []
 
     # 1
-    url = 
+    url = 'https://cex.plus/v1/market/kline-trend?_=1541135653018'
     res = json_download(url)
     # 2
-    res = 
-    for i in res:
+    res = res['data']
+    for k,v in res.items():
         #3
-        price = 
+        price = v[-1]
         #4
-        subject = 
+        subject = k.replace('_','^').upper()
         symbols.append(subject)
         
         unit = my_format_obj.get_unit(price)
         ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
-        # tickers_mq.send_message(ticker_message)
+        tickers_mq.send_message(ticker_message)
         tickers.append(ticker_message)
 
 
     symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
-    # symbols_mq.send_message(symbols_message)
+    symbols_mq.send_message(symbols_message)
 
     print(symbols_message,'\n')
     print(tickers)
@@ -59,5 +59,5 @@ if __name__ == '__main__':
     print(file_name,'\n')
 
     #5
-    exchange_id = 
+    exchange_id = '120'
     parse(exchange_id)
