@@ -26,7 +26,7 @@ SOCK_PROXIES = {
 
 
 HEADERS = {
-"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
+"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
 }
 
 
@@ -189,18 +189,18 @@ def count_time(func):
 
 TIMEOUT = 4
 @count_time
-def json_download(url,method='get',data={},params={},headers={},cookies={},proxies={},retry=3,verify=False):
+def json_download(url,method='get',data={},params={},headers={},cookies={},proxies={},retry=3,verify=False,timeout=TIMEOUT):
 
     while  retry:
         try:
             if method == 'post':
-                r = requests.post(url,data=data,headers=headers,cookies={},timeout=TIMEOUT,proxies=proxies,verify=verify)
+                r = requests.post(url,data=data,headers=headers,cookies=cookies,timeout=timeout,proxies=proxies,verify=verify)
                 if r.status_code==200:
                     res = json.loads(r.text)
                 else:
                     raise Exception('post request error !!')
             else:
-                r = requests.get(url,params=params,headers=headers,cookies={},timeout=TIMEOUT,proxies=proxies,verify=verify)
+                r = requests.get(url,params=params,headers=headers,cookies=cookies,timeout=timeout,proxies=proxies,verify=verify)
                 if r.status_code==200:
                     res = json.loads(r.text)
                 else:
@@ -215,16 +215,16 @@ def json_download(url,method='get',data={},params={},headers={},cookies={},proxi
 
 
 @count_time
-def html_download(url,method='get',data={},params={},headers={},cookies={},proxies={},retry=3,verify=False):
+def html_download(url,method='get',data={},params={},headers={},cookies={},proxies={},retry=3,verify=False,timeout=TIMEOUT):
 
     while  retry:
         try:
             if method == 'post':
-                r = requests.post(url,data=data,headers=headers,cookies={},timeout=TIMEOUT,proxies=proxies,verify=verify)
+                r = requests.post(url,data=data,headers=headers,cookies=cookies,timeout=timeout,proxies=proxies,verify=verify)
                 if r.status_code==200:
                     return r.text            
             else:
-                r = requests.get(url,params=params,headers=headers,cookies={},timeout=TIMEOUT,proxies=proxies,verify=verify)
+                r = requests.get(url,params=params,headers=headers,cookies=cookies,timeout=timeout,proxies=proxies,verify=verify)
                 if r.status_code==200:
                     return r.text
             raise Exception('status_code error')
