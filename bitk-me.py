@@ -1,10 +1,8 @@
-# import gevent
-# from gevent import monkey
-# monkey.patch_all()
-
 import os
 import json
+import time
 import requests
+import traceback
 from lxml import etree
 
 from tools import my_mq, my_format ,json_download, html_download, my_websocket
@@ -16,52 +14,64 @@ TickerItem = TickerItem + '_' + file_name
 TradeItem = TradeItem + '_' + file_name
 Symbols = Symbols + '_' + file_name
 
+rabbitmq_url = 'amqp://guest:123456@127.0.0.1:5672'
+
 
 
 def parse(exchange_id,exchange_name=file_name):
-    # def inner_parse(subject):
-    #     #
-    #     url = '' + subject
-    #     res = json_download(url)
-    #     #
-    #     price =  
-    #     # ts = my_format_obj.get_13_str_time(res["timestamp"])
-    #     unit = my_format_obj.get_unit(price)
-    #     ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
-    #     # tickers_mq.send_message(ticker_message)
-    #     tickers.append(ticker_message)
 
     my_format_obj = my_format()
-    symbols_mq = my_mq(Symbols, Symbols, Symbols)
-    tickers_mq = my_mq(TickerItem, TickerItem,TickerItem)
-    ts = my_format_obj.get_13_str_time()
-    tickers = []
-    symbols =  []
-    # 1
-    url = 'https://bitk.me/Ajax/getJsonTop?market=khb_eth'
-    res = json_download(url)
-    # 2
-    res = res['list'].items()
-    for k,i in res:
-        #3
-        price = i['new_price']
-        #4
-        subject = k.replace('_','^').upper()
-        symbols.append(subject)
+    symbols_mq = my_mq(Symbols, Symbols, Symbols,rabbitmq_url=rabbitmq_url)
+    tickers_mq = my_mq(TickerItem, TickerItem,TickerItem,rabbitmq_url=rabbitmq_url)
+
+
+    def get_symbols():
+        map_dict = dict()
+        url = 'https://bitk.me/Ajax/getJsonTop?market=khb_eth'
+        res = json_download(url)
+        res = res['list'].items()
+        symbols = []
+        for k,i in res:
+            subject = k.replace('_','^').upper()
+            symbols.append(subject)
+        symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
+        symbols_mq.send_message(symbols_message)
+        print(symbols_message)
+        return map_dict
+
+
+    def get_tickers():
+        url = 'https://bitk.me/Ajax/getJsonTop?market=khb_eth'
+        res = json_download(url)
+        res = res['list'].items()
+        ts = my_format_obj.get_13_str_time()
+        for k,i in res:
+            price = i['new_price']
+            subject = k.replace('_','^').upper()
+            # ts = my_format_obj.get_13_str_time(i[])
+            unit = my_format_obj.get_unit(price)
+            ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
+            tickers_mq.send_message(ticker_message)
+            print(ticker_message)
+
+
+    while 1:
+        try:
+            map_dict = get_symbols()
+
+            while  1:
+                try:
+                    get_tickers()
+                except Exception as e:
+                    print('eid:',exchange_id,traceback.print_exc())
+                time.sleep(1)
+
+        except Exception as e:
+            print('eid:', exchange_id, traceback.print_exc())
+        time.sleep(1)
+
+
         
-        unit = my_format_obj.get_unit(price)
-        ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
-        tickers.append(ticker_message)
-        tickers_mq.send_message(ticker_message)
-
-    symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
-    symbols_mq.send_message(symbols_message)
-    # gevent.joinall([gevent.spawn(inner_parse,subject) for subject in symbols])
-
-    print(symbols_message,'\n')
-    print(tickers)
-    return symbols ,tickers
-
 
 if __name__ == '__main__':
     print(file_name,'\n')

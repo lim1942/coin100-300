@@ -27,12 +27,25 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        url = 'https://www.buyucoin.com/api/v1.2/currency/markets'
+        url = 'https://api.therocktrading.com/v1/funds/tickers'
         res = json_download(url)
-        res = res['data'].items()
+        res = res['tickers']
         symbols = []
-        for k,v in res:
-            subject = k.replace('_','^').upper()
+        for i in res:
+            price = i['last']
+            subject = i['fund_id']
+            if subject.endswith('EUR'):
+                subject = subject.replace('EUR','^EUR') 
+            if subject.endswith('BTC'):
+                subject = subject.replace('BTC','^BTC') 
+            if subject.endswith('XRP'):
+                subject = subject.replace('XRP','^XRP')
+            if subject.endswith('EURN'):
+                subject = subject.replace('EURN','^EURN') 
+            if subject.endswith('USD'):
+                subject = subject.replace('USD','^USD') 
+            if subject.endswith('ETH'):
+                subject = subject.replace('ETH','^ETH') 
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -41,13 +54,25 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        url = 'https://www.buyucoin.com/api/v1.2/currency/markets'
+        url = 'https://api.therocktrading.com/v1/funds/tickers'
         res = json_download(url)
-        res = res['data'].items() 
+        res = res['tickers']
         ts = my_format_obj.get_13_str_time()
-        for k,v in res:
-            price = v['last_trade']
-            subject = k.replace('_','^').upper()
+        for i in res:
+            price = i['last']
+            subject = i['fund_id']
+            if subject.endswith('EUR'):
+                subject = subject.replace('EUR','^EUR') 
+            if subject.endswith('BTC'):
+                subject = subject.replace('BTC','^BTC') 
+            if subject.endswith('XRP'):
+                subject = subject.replace('XRP','^XRP')
+            if subject.endswith('EURN'):
+                subject = subject.replace('EURN','^EURN') 
+            if subject.endswith('USD'):
+                subject = subject.replace('USD','^USD') 
+            if subject.endswith('ETH'):
+                subject = subject.replace('ETH','^ETH') 
             # ts = my_format_obj.get_13_str_time(i[])
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
@@ -72,7 +97,6 @@ def parse(exchange_id,exchange_name=file_name):
 
 if __name__ == '__main__':
     print(file_name,'\n')
-
     #5
-    exchange_id = 122
+    exchange_id = '179'
     parse(exchange_id)
