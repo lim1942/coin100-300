@@ -74,7 +74,7 @@ class my_format:
 
 
     def conver_num_math(self,_in):
-        _in = str(_in)
+        _in = str(_in).replace(',','')
         if 'e' not in _in:
             return _in
         else:
@@ -88,6 +88,7 @@ class my_format:
         return word.upper()
 
     def get_unit(self,price, price_decimal=None):
+        price = self.conver_num_math(price)
         if math.modf(float(price))[0] != 0:
             if price_decimal is None:
                 return '0.' + '1'.zfill(len(self.conver_num_math(price).split('.')[-1]))

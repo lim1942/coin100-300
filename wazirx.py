@@ -27,13 +27,12 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        url = 'https://a.yunex.io/api/base/coins/tree?pos=index'
-        res = json_download(url)['data']
-        res = res[0]['plist'] + res[1]['plist'] + res[2]['plist']
+        url = 'https://api.wazirx.com/api/v2/market-status'
+        res = json_download(url)
+        res = res['markets']
         symbols = []
         for i in res:
-            price = i['cur_price']
-            subject = i['symbol'].replace('_','^').upper()
+            subject = (i['baseMarket'] + '^' + i['quoteMarket']).upper()
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -42,14 +41,13 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        url = 'https://a.yunex.io/api/base/coins/tree?pos=index'
-        res = json_download(url)['data']
-        res = res[0]['plist'] + res[1]['plist'] + res[2]['plist']
-        ts = my_format_obj.get_13_str_time()
+        url = 'https://api.wazirx.com/api/v2/market-status'
+        res = json_download(url)
+        res = res['markets']
         for i in res:
-            price = i['cur_price']
-            subject = i['symbol'].replace('_','^').upper()
-            # ts = my_format_obj.get_13_str_time(i[])
+            price =  i['last']
+            subject = (i['baseMarket'] + '^' + i['quoteMarket']).upper()
+            ts = my_format_obj.get_13_str_time(i['at'])
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
@@ -57,7 +55,7 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     while 1:
-        try:
+        try:    
             map_dict = get_symbols()
             while  1:
                 try:
@@ -71,8 +69,8 @@ def parse(exchange_id,exchange_name=file_name):
         time.sleep(1)
 
 
-        
+
 if __name__ == '__main__':
     print(file_name,'\n')
-    exchange_id = '174'
+    exchange_id = '193'
     parse(exchange_id)

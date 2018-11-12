@@ -44,16 +44,12 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
         url = 'https://api.bilaxy.com/v1/tickers'
         res = json_download(url)
-        # 2
         res = res['data']
         ts = my_format_obj.get_13_str_time()
         for i in res:
-            #3
             price = i['last']
-            #4
             subject = all_symbols[str(i['symbol'])].replace('/','^')
             # ts = my_format_obj.get_13_str_time(i[])
             unit = my_format_obj.get_unit(price)

@@ -27,10 +27,8 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
         url = 'https://exchange.coss.io/api/integrated-market/pairs'
         res = json_download(url)
-        # 2
         res = res
         symbols = []
         for i in res:
@@ -43,10 +41,8 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
         url = 'https://exchange.coss.io/api/integrated-market/pairs'
         res = json_download(url)
-        # 2
         res = res
         ts = my_format_obj.get_13_str_time()
         for i in res:

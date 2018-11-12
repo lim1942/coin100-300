@@ -73,6 +73,5 @@ def parse(exchange_id,exchange_name=file_name):
 if __name__ == '__main__':
     print(file_name,'\n')
 
-    #5
     exchange_id = '121'
     parse(exchange_id)

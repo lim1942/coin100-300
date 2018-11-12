@@ -27,7 +27,6 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
         url = 'https://www.digifinex.com/'
         html = html_download(url)
         xml = etree.HTML(html)
@@ -48,7 +47,6 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
         url = 'https://www.digifinex.com/'
         html = html_download(url)
         xml = etree.HTML(html)

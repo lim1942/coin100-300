@@ -52,9 +52,9 @@ def parse(exchange_id,exchange_name=file_name):
         ts = my_format_obj.get_13_str_time()
         for i in res:
             #3
-            price = i[]
-            #4
             subject = i[]
+            #4
+            price = i[]
             # ts = my_format_obj.get_13_str_time(i[])
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
@@ -63,7 +63,7 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     while 1:
-        try:
+        try:    
             map_dict = get_symbols()
             while  1:
                 try:

@@ -26,6 +26,7 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_symbols():
+        map_dict = dict()
         url = 'https://acx.io/api/v2/tickers.jsono'
         res = json_download(url)
         symbols = []
@@ -36,6 +37,7 @@ def parse(exchange_id,exchange_name=file_name):
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
         print(symbols_message)
+        return map_dict
 
         
     def get_tickers():

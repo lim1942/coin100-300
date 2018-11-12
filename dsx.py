@@ -27,7 +27,6 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
         url = 'https://dsx.uk/homepage-api/ticker'
         res = json_download(url)
         symbols = []
