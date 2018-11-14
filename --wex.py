@@ -40,14 +40,11 @@ def parse(exchange_id,exchange_name=file_name):
     tickers = []
     symbols =  []
 
-    # 1
     url = 'https://wex.nz/api/3/info'
     res = json_download(url)
-    # 2
     res = res['pairs'].keys()
     con = []
     for i in res:
-        #3
         subject = i.replace('_','^').upper()
         symbols.append(subject)
         con.append(i)
@@ -64,7 +61,5 @@ def parse(exchange_id,exchange_name=file_name):
 
 if __name__ == '__main__':
     print(file_name,'\n')
-
-    #5
     exchange_id = '151'
     parse(exchange_id)

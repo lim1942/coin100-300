@@ -13,7 +13,6 @@ DepthItem = DepthItem + '_' + file_name
 TickerItem = TickerItem + '_' + file_name
 TradeItem = TradeItem + '_' + file_name
 Symbols = Symbols + '_' + file_name
-
 rabbitmq_url = 'amqp://guest:123456@127.0.0.1:5672'
 
 
@@ -27,15 +26,24 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
-        url = 
+        url = 'https://api.cryptomkt.com/v1/ticker'
         res = json_download(url)
-        # 2
-        res = 
+        res = res['data']
         symbols = []
         for i in res:
-            #4
-            subject = i[]
+            subject = i['market']
+            if subject.endswith('CLP'):
+                subject = subject.replace('CLP','^CLP')
+            if subject.endswith('ARS'):
+                subject = subject.replace('ARS','^ARS')
+            if subject.endswith('EUR'):
+                subject = subject.replace('EUR','^EUR')
+            if subject.endswith('BRL'):
+                subject = subject.replace('BRL','^BRL')
+            if subject.endswith('MXN'):
+                subject = subject.replace('MXN','^MXN')
+            if subject.endswith('BRL'):
+                subject = subject.replace('BRL','^BRL')
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -44,18 +52,25 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
-        url = 
+        url = 'https://api.cryptomkt.com/v1/ticker'
         res = json_download(url)
-        # 2
-        res = 
+        res = res['data']
         ts = my_format_obj.get_13_str_time()
         for i in res:
-            #3
-            subject = i[]
-            #4
-            price = i[]
-            # ts = my_format_obj.get_13_str_time(i[])
+            subject = i['market']
+            if subject.endswith('CLP'):
+                subject = subject.replace('CLP','^CLP')
+            if subject.endswith('ARS'):
+                subject = subject.replace('ARS','^ARS')
+            if subject.endswith('EUR'):
+                subject = subject.replace('EUR','^EUR')
+            if subject.endswith('BRL'):
+                subject = subject.replace('BRL','^BRL')
+            if subject.endswith('MXN'):
+                subject = subject.replace('MXN','^MXN')
+            if subject.endswith('BRL'):
+                subject = subject.replace('BRL','^BRL')
+            price = i['last_price']
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
@@ -79,6 +94,5 @@ def parse(exchange_id,exchange_name=file_name):
 
 if __name__ == '__main__':
     print(file_name,'\n')
-    #5
-    exchange_id = 
+    exchange_id = '234'
     parse(exchange_id)

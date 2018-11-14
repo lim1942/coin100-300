@@ -27,35 +27,24 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
-        url = 
-        res = json_download(url)
-        # 2
-        res = 
+        res = ['BtcNis','EthNis','BchNis','LtcNis','EtcNis','BtgNis']
         symbols = []
         for i in res:
-            #4
-            subject = i[]
+            subject = (i[:3]+ '^' +i[3:]).upper()
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
         print(symbols_message)
-        return map_dict
+        return res
 
 
     def get_tickers():
-        # 1
-        url = 
-        res = json_download(url)
-        # 2
-        res = 
+        url = 'https://bit2c.co.il/Exchanges/{}/Ticker.json'
         ts = my_format_obj.get_13_str_time()
-        for i in res:
-            #3
-            subject = i[]
-            #4
-            price = i[]
-            # ts = my_format_obj.get_13_str_time(i[])
+        for i in old_res:
+            res = json_download(url.format(i))
+            subject = (i[:3]+ '^' +i[3:]).upper()
+            price = res['l']
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
@@ -64,13 +53,14 @@ def parse(exchange_id,exchange_name=file_name):
 
     while 1:
         try:    
-            map_dict = get_symbols()
+            old_res = get_symbols()
             while  1:
                 try:
                     get_tickers()
                 except Exception as e:
                     print('eid:',exchange_id,traceback.print_exc())
                 time.sleep(1)
+
         except Exception as e:
             print('eid:', exchange_id, traceback.print_exc())
         time.sleep(1)
@@ -79,6 +69,5 @@ def parse(exchange_id,exchange_name=file_name):
 
 if __name__ == '__main__':
     print(file_name,'\n')
-    #5
-    exchange_id = 
+    exchange_id = '231'
     parse(exchange_id)

@@ -27,15 +27,18 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
-        url = 
+        url = 'https://api.chaince.com/tickers'
         res = json_download(url)
-        # 2
-        res = 
+        res = res.items()
         symbols = []
-        for i in res:
-            #4
-            subject = i[]
+        for k,v in res:
+            subject = k.upper()
+            if subject.endswith('EOS'):
+                subject = subject.replace('EOS','^EOS')
+            elif subject.endswith('USDT'):
+                subject = subject.replace('USDT','^USDT')                
+            else:
+                continue
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -44,18 +47,19 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
-        url = 
+        url = 'https://api.chaince.com/tickers'
         res = json_download(url)
-        # 2
-        res = 
+        res = res.items()
         ts = my_format_obj.get_13_str_time()
-        for i in res:
-            #3
-            subject = i[]
-            #4
-            price = i[]
-            # ts = my_format_obj.get_13_str_time(i[])
+        for k,v in res:
+            subject = k.upper()
+            if subject.endswith('EOS'):
+                subject = subject.replace('EOS','^EOS')
+            elif subject.endswith('USDT'):
+                subject = subject.replace('USDT','^USDT')                
+            else:
+                continue
+            price = v['price']
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
@@ -71,6 +75,7 @@ def parse(exchange_id,exchange_name=file_name):
                 except Exception as e:
                     print('eid:',exchange_id,traceback.print_exc())
                 time.sleep(1)
+
         except Exception as e:
             print('eid:', exchange_id, traceback.print_exc())
         time.sleep(1)
@@ -79,6 +84,5 @@ def parse(exchange_id,exchange_name=file_name):
 
 if __name__ == '__main__':
     print(file_name,'\n')
-    #5
-    exchange_id = 
+    exchange_id = '222'
     parse(exchange_id)

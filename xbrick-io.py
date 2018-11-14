@@ -27,15 +27,12 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
-        url = 
+        url = 'https://apinew.xbrick.io/x/api/base/user/v1/initialize' 
         res = json_download(url)
-        # 2
-        res = 
+        res = json.loads(res['data']['ticker'].replace('\\','')).values()
         symbols = []
         for i in res:
-            #4
-            subject = i[]
+            subject = i['s0'] + '^' +i['s1']
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -44,18 +41,13 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
-        url = 
+        url = 'https://apinew.xbrick.io/x/api/base/user/v1/initialize' 
         res = json_download(url)
-        # 2
-        res = 
+        res = json.loads(res['data']['ticker'].replace('\\','')).values()
         ts = my_format_obj.get_13_str_time()
         for i in res:
-            #3
-            subject = i[]
-            #4
-            price = i[]
-            # ts = my_format_obj.get_13_str_time(i[])
+            subject = i['s0'] + '^' +i['s1']
+            price = i['l']
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
@@ -80,5 +72,5 @@ def parse(exchange_id,exchange_name=file_name):
 if __name__ == '__main__':
     print(file_name,'\n')
     #5
-    exchange_id = 
+    exchange_id = '241'
     parse(exchange_id)

@@ -28,14 +28,14 @@ def parse(exchange_id,exchange_name=file_name):
     def get_symbols():
         map_dict = dict()
         # 1
-        url = 
+        url = 'https://coinrail.co.kr/api/public/system/market/info?fiat_currency=krw&lang=ko'
         res = json_download(url)
         # 2
-        res = 
+        res = res['markets']
         symbols = []
         for i in res:
             #4
-            subject = i[]
+            subject = i['market'].replace('-','^').upper()
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -45,16 +45,16 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_tickers():
         # 1
-        url = 
+        url = 'https://coinrail.co.kr/api/public/system/market/info?fiat_currency=krw&lang=ko'
         res = json_download(url)
         # 2
-        res = 
+        res = res['markets']
         ts = my_format_obj.get_13_str_time()
         for i in res:
             #3
-            subject = i[]
+            subject = i['market'].replace('-','^').upper()
             #4
-            price = i[]
+            price = i['currentPrice']
             # ts = my_format_obj.get_13_str_time(i[])
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
@@ -71,6 +71,7 @@ def parse(exchange_id,exchange_name=file_name):
                 except Exception as e:
                     print('eid:',exchange_id,traceback.print_exc())
                 time.sleep(1)
+
         except Exception as e:
             print('eid:', exchange_id, traceback.print_exc())
         time.sleep(1)
@@ -80,5 +81,5 @@ def parse(exchange_id,exchange_name=file_name):
 if __name__ == '__main__':
     print(file_name,'\n')
     #5
-    exchange_id = 
+    exchange_id = '201'
     parse(exchange_id)

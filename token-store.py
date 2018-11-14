@@ -27,15 +27,12 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
-        url = 
+        url = 'https://api.token.store/ticker'
         res = json_download(url)
-        # 2
-        res = 
+        res = res.items()
         symbols = []
-        for i in res:
-            #4
-            subject = i[]
+        for k,v in res:
+            subject = k.replace('_','^').upper()
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -44,18 +41,15 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
-        url = 
+        url = 'https://api.token.store/ticker'
         res = json_download(url)
-        # 2
-        res = 
+        res = res.items()
         ts = my_format_obj.get_13_str_time()
-        for i in res:
-            #3
-            subject = i[]
-            #4
-            price = i[]
-            # ts = my_format_obj.get_13_str_time(i[])
+        for k,v in res:
+            subject = k.replace('_','^').upper()
+            price = v['last']
+            if not price:
+                continue
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
@@ -80,5 +74,5 @@ def parse(exchange_id,exchange_name=file_name):
 if __name__ == '__main__':
     print(file_name,'\n')
     #5
-    exchange_id = 
+    exchange_id = '236' 
     parse(exchange_id)
