@@ -27,15 +27,21 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
-        url = 
+        url = 'https://kuna.io/api/v2/tickers'
         res = json_download(url)
-        # 2
-        res = 
+        res = res.items()
         symbols = []
-        for i in res:
-            #4
-            subject = i[]
+        for k,v in res:
+            subject = k
+            if subject.endswith('uah'):
+                subject = subject.replace('uah','^uah')
+            elif subject.endswith('btc'):
+                subject = subject.replace('btc','^btc')
+            elif subject.endswith('gbg'):
+                subject = subject.replace('gbg','^gbg')
+            elif subject.endswith('eurs'):
+                subject = subject.replace('eurs','^eurs')
+            subject = subject.upper()
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -44,18 +50,22 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
-        url = 
+        url = 'https://kuna.io/api/v2/tickers'
         res = json_download(url)
-        # 2
-        res = 
-        ts = my_format_obj.get_13_str_time()
-        for i in res:
-            #3
-            subject = i[]
-            #4
-            price = i[]
-            # ts = my_format_obj.get_13_str_time(i[])
+        res = res.items()
+        for k,v in res:
+            subject = k
+            if subject.endswith('uah'):
+                subject = subject.replace('uah','^uah')
+            elif subject.endswith('btc'):
+                subject = subject.replace('btc','^btc')
+            elif subject.endswith('gbg'):
+                subject = subject.replace('gbg','^gbg')
+            elif subject.endswith('eurs'):
+                subject = subject.replace('eurs','^eurs')
+            subject = subject.upper()
+            price = v['ticker']['last']
+            ts = my_format_obj.get_13_str_time(v['at'])
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
@@ -78,5 +88,7 @@ def parse(exchange_id,exchange_name=file_name):
 
 
 if __name__ == '__main__':
-    exchange_id = 
+    print(file_name,'\n')
+    #5
+    exchange_id = '244'
     parse(exchange_id)

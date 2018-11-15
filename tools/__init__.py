@@ -181,7 +181,7 @@ def count_time(func):
         res = func(*args, **kwargs)
         over_time = time.time()   
         total_time = (over_time-start_time)
-        print('》》》》》》》》》》》》》函数',func.__name__,' 用时 %s 秒  \n' % total_time)
+        print('》》》》》',traceback.extract_stack()[-2][0].split('/')[-1],'》》》》》》》》》》》》》 download 用时 %s 秒  \n' % total_time)
         return res
     return int_time
 

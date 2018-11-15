@@ -13,7 +13,6 @@ DepthItem = DepthItem + '_' + file_name
 TickerItem = TickerItem + '_' + file_name
 TradeItem = TradeItem + '_' + file_name
 Symbols = Symbols + '_' + file_name
-
 rabbitmq_url = 'amqp://guest:123456@127.0.0.1:5672'
 
 
@@ -27,15 +26,12 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
-        url = 
+        url = 'https://cryptomate.co.uk/api/all/'
         res = json_download(url)
-        # 2
-        res = 
+        res = res.items()
         symbols = []
-        for i in res:
-            #4
-            subject = i[]
+        for k,v in res:
+            subject = k+'^USD'
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -44,18 +40,13 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
-        url = 
+        url = 'https://cryptomate.co.uk/api/all/'
         res = json_download(url)
-        # 2
-        res = 
+        res = res.items()
         ts = my_format_obj.get_13_str_time()
-        for i in res:
-            #3
-            subject = i[]
-            #4
-            price = i[]
-            # ts = my_format_obj.get_13_str_time(i[])
+        for k,v in res:
+            subject = k+'^USD'
+            price = v['price']
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
@@ -78,5 +69,5 @@ def parse(exchange_id,exchange_name=file_name):
 
 
 if __name__ == '__main__':
-    exchange_id = 
+    exchange_id = '252'
     parse(exchange_id)

@@ -13,7 +13,6 @@ DepthItem = DepthItem + '_' + file_name
 TickerItem = TickerItem + '_' + file_name
 TradeItem = TradeItem + '_' + file_name
 Symbols = Symbols + '_' + file_name
-
 rabbitmq_url = 'amqp://guest:123456@127.0.0.1:5672'
 
 
@@ -27,15 +26,12 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
-        url = 
+        url = 'https://www.okgaex.com/api/spot/v3/products/ticker'
         res = json_download(url)
-        # 2
-        res = 
+        res = res
         symbols = []
         for i in res:
-            #4
-            subject = i[]
+            subject = i['instrument_id'].replace('-','^').upper()
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -44,18 +40,13 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
-        url = 
+        url = 'https://www.okgaex.com/api/spot/v3/productsq/ticker'
         res = json_download(url)
-        # 2
-        res = 
+        res = res
         ts = my_format_obj.get_13_str_time()
         for i in res:
-            #3
-            subject = i[]
-            #4
-            price = i[]
-            # ts = my_format_obj.get_13_str_time(i[])
+            subject = i['instrument_id'].replace('-','^').upper()
+            price = i['last']
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
@@ -78,5 +69,7 @@ def parse(exchange_id,exchange_name=file_name):
 
 
 if __name__ == '__main__':
-    exchange_id = 
+    print(file_name,'\n')
+    #5
+    exchange_id = '250'
     parse(exchange_id)
