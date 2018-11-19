@@ -21,6 +21,7 @@ rabbitmq_url = 'amqp://guest:123456@127.0.0.1:5672'
 
 
 def parse(exchange_id,exchange_name=file_name):
+    
     def run(i):
         subject = (i['instrument']+'^'+i['currency']).upper()
         symbols.append(subject)
