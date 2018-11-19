@@ -128,45 +128,46 @@ class my_format:
 class my_websocket:
 
 
-    def on_error(self,ws, error=None):
-        print('Connection timeout !!!')
+    def on_error(self,ws, error):
+        print(error)
 
     
     def on_close(self):    
         print("### closed ###")
 
 
-    def get_a_ws(self,url,on_message,headers={},cookie={},proxies={}):
+    def get_a_ws(self,url,on_message,message,cookies={},proxies={}):
         self.ws = websocket.WebSocketApp(url,
-                                  headers = headers,
-                                  cookie=cookie,
+                                  cookie=cookies,
                                   on_message = on_message,
                                   on_error = self.on_error,
                                   on_close = self.on_close,
                                   )
+        self.message = message
         return True
 
 
-    def send_message(self,message):
+    def send_message(self):
+        print(self.message,'---')
         try:
-            if isinstance(message,str):
-                self.ws.send(message)
+            if isinstance(self.message,str):
+                self.ws.send(self.message)
             else:
-                for mess in message:
+                for mess in self.message:
                     self.ws.send(mess)
             return True
         except:
             return False
 
 
-    def run(self,inter=60,ping_timeout=59):
-        self.ws.on_message = self.send_message
+    def run(self,inter=60,timeout=59):
+        self.ws.on_open = self.send_message
         self.ws.run_forever(ping_interval=inter,ping_timeout=timeout)
 
 
 
-    def run_forever(self,inter=60,ping_timeout=59):
-        self.ws.on_message = self.send_message
+    def run_always(self,inter=60,timeout=59):
+        self.ws.on_open = self.send_message
         while  1:
             self.ws.run_forever(ping_interval=inter,ping_timeout=timeout)
 

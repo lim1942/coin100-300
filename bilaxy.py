@@ -35,7 +35,10 @@ def parse(exchange_id,exchange_name=file_name):
         res = res['data']
         symbols = []
         for i in res:
-            subject = all_symbols[str(i['symbol'])].replace('/','^')
+            try:
+                subject = all_symbols[str(i['symbol'])].replace('/','^')
+            except:
+                continue
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
         symbols_mq.send_message(symbols_message)
@@ -50,8 +53,10 @@ def parse(exchange_id,exchange_name=file_name):
         ts = my_format_obj.get_13_str_time()
         for i in res:
             price = i['last']
-            subject = all_symbols[str(i['symbol'])].replace('/','^')
-            # ts = my_format_obj.get_13_str_time(i[])
+            try:
+                subject = all_symbols[str(i['symbol'])].replace('/','^')
+            except:
+                continue
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
