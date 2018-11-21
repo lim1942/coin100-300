@@ -28,7 +28,7 @@ def parse(exchange_id,exchange_name=file_name):
     def get_symbols():
         map_dict = dict()
         url = 'https://kex.com/real/indexmarket.html'
-        res = json_download(url)
+        res = json_download(url,proxies=SOCK_PROXIES)
         res = res['data']
         symbols = []
         for i in res:
@@ -42,7 +42,7 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_tickers():
         url = 'https://kex.com/real/indexmarket.html'
-        res = json_download(url)
+        res = json_download(url,proxies=SOCK_PROXIES)
         ts = my_format_obj.get_13_str_time(res['time'])
         res = res['data']
         for i in res:

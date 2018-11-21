@@ -43,6 +43,8 @@ def parse(exchange_id,exchange_name=file_name):
         ts = my_format_obj.get_13_str_time()
         for i in old_res:
             res = json_download(url.format(i))
+            if not res:
+                continue
             subject = (i[:3]+ '^' +i[3:]).upper()
             price = res['l']
             unit = my_format_obj.get_unit(price)
