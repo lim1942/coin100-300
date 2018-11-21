@@ -40,7 +40,7 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        url = 'https://www.okgaex.com/api/spot/v3/productsq/ticker'
+        url = 'https://www.okgaex.com/api/spot/v3/products/ticker'
         res = json_download(url)
         res = res
         ts = my_format_obj.get_13_str_time()

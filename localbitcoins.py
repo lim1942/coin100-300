@@ -16,7 +16,15 @@ Symbols = Symbols + '_' + file_name
 
 rabbitmq_url = 'amqp://guest:123456@127.0.0.1:5672'
 
-
+HEADERS ={
+"accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+"accept-encoding":"gzip, deflate, br",
+"accept-language":"zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7",
+"cache-control":"no-cache",
+"pragma":"no-cache",
+"upgrade-insecure-requests":"1",
+"user-agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36",  
+}
 
 def parse(exchange_id,exchange_name=file_name):
 
@@ -28,8 +36,7 @@ def parse(exchange_id,exchange_name=file_name):
     def get_symbols():
         map_dict = dict()
         url = 'https://localbitcoins.com/bitcoinaverage/ticker-all-currencies/'
-        res = json_download(url,proxies=SOCK_PROXIES)
-        print(res)
+        res = json_download(url,proxies=SOCK_PROXIES,headers=HEADERS,timeout=15)
         res = res.items()
         symbols = []
         for k,v in res:

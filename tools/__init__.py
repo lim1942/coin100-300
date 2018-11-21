@@ -57,16 +57,27 @@ class my_mq:
 
 
     def send_message(self,message, routing_key='', exchange='', properties=pika.BasicProperties(delivery_mode=2, content_type='application/json'), mandatory=False):
-        if not self.channel:
-            self.create_channel(self.exchange,self.queue,self.routing_key)
-        if mandatory:
-            self.channel.confirm_delivery()
-        return self.channel.basic_publish(exchange=self.exchange,
-                              routing_key=self.routing_key,
-                              body=message,
-                              properties=properties,
-                              mandatory=mandatory,
-                              )
+        retry =3 
+        if (not routing_key) or (not exchange):
+            routing_key = self.routing_key
+            exchange = self.exchange
+        while retry:
+            try:
+                if not self.channel:
+                    self.create_channel(self.exchange,self.queue,self.routing_key)
+                if mandatory:
+                    self.channel.confirm_delivery()
+                self.channel.basic_publish(exchange=exchange,
+                                      routing_key=routing_key,
+                                      body=message,
+                                      properties=properties,
+                                      mandatory=mandatory,
+                                      )
+                return True
+            except Exception as e:
+                print('MQ server error !!!!!',e)
+                retry -=1
+        return False
 
 
 

@@ -26,7 +26,7 @@ HEADERS = {
 "Host":"ebtcbank.com",
 "Pragma":"no-cache",
 "Upgrade-Insecure-Requests":"1",
-"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"
+"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36",
 }
 
 
@@ -40,7 +40,7 @@ def parse(exchange_id,exchange_name=file_name):
     def get_symbols():
         map_dict = dict()
         url = 'http://ebtcbank.com/Ajax/getJsonTop?market=eth_btc'
-        res = json_download(url,proxies=SOCK_PROXIES,headers=HEADERS,timeout=8)
+        res = json_download(url,proxies=SOCK_PROXIES,headers=HEADERS,timeout=4)
         res = res['list'].items()
         symbols = []
         for k,v in res:

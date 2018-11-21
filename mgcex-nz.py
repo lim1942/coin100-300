@@ -42,7 +42,7 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_tickers():
         url = 'http://www.mgcex.com/api/TradeQuote?trade=BYC'
-        res = json_download(url,timeout=8)
+        res = json_download(url,timeout=14)
         res = res.items()
         ts = my_format_obj.get_13_str_time()
         for k,v in res:
