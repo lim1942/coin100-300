@@ -31,6 +31,10 @@ HEADERS = {
 
 
 class my_mq:
+    """
+    Rabbit mq class ,you can creat an object to create channel, send message.
+    You need to specfy exchange ,queue, routing_key
+    """
 
     def __init__(self,exchange,queue,routing_key,rabbitmq_url=rabbitmq_url):
         self.exchange = exchange
@@ -41,6 +45,9 @@ class my_mq:
 
 
     def create_channel(self, exchange='', queue='', routing_key='', type='direct', durable=False):
+        """
+        Create a channel
+        """
         while 1:
             try:
                 connection = pika.BlockingConnection(pika.URLParameters(self.rabbitmq_url))
@@ -57,6 +64,9 @@ class my_mq:
 
 
     def send_message(self,message, routing_key='', exchange='', properties=pika.BasicProperties(delivery_mode=2, content_type='application/json'), mandatory=False):
+        """
+        Use the created channel to send message in specified (exchange , queue, routing-key).
+        """
         retry =3 
         if (not routing_key) or (not exchange):
             routing_key = self.routing_key
@@ -82,9 +92,15 @@ class my_mq:
 
 
 class my_format:
+    """A class contain some useful script"""
 
 
     def conver_num_math(self,_in):
+        """
+        Get a number like '1e-10' ,
+        convert it to a complete float num,
+        And then return the float num. 
+        """
         _in = str(_in).replace(',','')
         if 'e' not in _in:
             return _in
@@ -95,10 +111,10 @@ class my_format:
             return num_zero
 
 
-    def _Upper(self,word):
-        return word.upper()
-
     def get_unit(self,price, price_decimal=None):
+        """
+        Return precision of an number
+        """
         price = self.conver_num_math(price)
         if math.modf(float(price))[0] != 0:
             if price_decimal is None:
@@ -107,6 +123,9 @@ class my_format:
 
 
     def format_symbols(self,exchange_id,symbols,exchange_name):
+        """
+        Retrun a format symbols string
+        """
         if not isinstance(symbols,list):
             print('bad symbols !!! error 001')
             return
@@ -114,11 +133,18 @@ class my_format:
 
 
     def format_tick(self,exchange_name,subject,exchange_id,price,unit,ts):
+        """
+        Retrun a format ticker string
+        """        
         price =self.conver_num_math(price)
         return json.dumps({"item_type": "TickerItem_"+exchange_name, "subject": subject, "exchange_id": exchange_id, "price": price, "unit": unit, "ts": ts})
 
 
     def get_13_str_time(self,t=None):
+        """
+        Retrun a 13 len timestamp by param 't' 
+        if not f ,return 13 len timestamp now
+        """         
         if not t:
             t = time.time()
         if not isinstance(t,str):
@@ -134,10 +160,118 @@ class my_format:
             return t
 
 
+    def __conver_to_13stamp(self,t):
+        """
+        Convert date like "2018-10-17 18:43:03.213" to timestamp.
+        As we know time.mktime() can`t convert milliscond,
+        But this conversion still retain precision of milliscond ~~
+        """
+
+        # onfirm this param
+        if not isinstance(t,str):
+            t = str(t)
+
+        # get num behind dot 
+        try:
+            num_behind_point = re.findall(r'\.(\d+)',t)[0]
+            if len(num_behind_point) ==1:
+                num_behind_point = num_behind_point + '00'
+            elif len(num_behind_point) ==2:
+                num_behind_point = num_behind_point + '0'
+            elif len(num_behind_point)>2:
+                num_behind_point = num_behind_point[:3]
+        except:
+            num_behind_point = '000'
+
+        # convert time tuple to stamp
+        num_list = list(map(lambda x:int(float(x)),re.findall(r'([\d\.]+)',t)))
+        time_tuple = tuple(num_list[:6]+[0,0,0])
+        timestamp = int(str(int(time.mktime(time_tuple)))[:10] + num_behind_point)        
+
+        return str(timestamp)
+
+
+    def convert_gmt_to_13stamp(self,t,tz=0):
+        """
+        Convert datetime to timestamp , be sure the datetime is a gmt/utc time.
+        Because time.mktime() funcion just can convert an local-datetime to 
+        timestamp,but there is a gmt-datetime ,so we need to correction the 
+        timestamp (take out timezone) after convertion.
+        param    t : "2018-10-17 18:43:03.213"(like this)
+                 tz : 8 (an timezone num between [-12 to 12],convert gmt-x-timezone to gmt-0-timezone)
+        return   a 13-len timestamp
+        """
+
+        # get loc timestamp
+        try:
+            timestamp = int(self.__conver_to_13stamp(t))
+        except:
+            print('!!! get an error date string, return timestamp now ~')
+            return self.get_13_str_time()              
+
+        # take out timezone in timestamp
+        time_zone_h = time.strftime('%z', time.localtime())[:3]
+        h = int(re.findall(r'(\d+)',time_zone_h)[0])
+        ss = h * 3600 * 1000
+        if '+' in time_zone_h:
+            timestamp = timestamp + ss
+        elif '-' in time_zone_h:
+            timestamp = timestamp - ss
+
+        # handle specify timezone num
+        timestamp = timestamp - tz * 3600 * 1000
+
+        return str(timestamp)
+
+
+    def convert_loc_to_13stamp(self,t):
+        """
+        Convert datetime to stamp , be sure datetime is your local time.
+        """       
+
+        try:
+            return self.__conver_to_13stamp(t)
+        except:
+            print('!!! get an error date string, return timestamp now ~')
+            return self.get_13_str_time()            
+
+
+
+
+
+def create_ws(url, header=None, cookie=None):
+    """
+    Rerurn a short-connected websocket 
+    """
+    while 1:
+        try:
+            if header is None:
+                ws = create_connection(url,
+                                       #http_proxy_host='127.0.0.1',
+                                       #http_proxy_port=1080,
+                                       sslopt={"cert_reqs": ssl.CERT_NONE}
+                                       )
+                return ws
+            else:
+                ws = create_connection(url,
+                                       # http_proxy_host='127.0.0.1',
+                                       # http_proxy_port=8888,
+                                       sslopt={"cert_reqs": ssl.CERT_NONE},
+                                       header=header,
+                                       cookie=cookie
+                                       )
+                return ws
+        except:
+            print(url, 'connect ws error,retry...')
+            time.sleep(5)
+
+
 
 
 class my_websocket:
-
+    """
+    Rerurn a long-connected websocket 
+    """
 
     def on_error(self,ws, error):
         print(error)
@@ -147,9 +281,8 @@ class my_websocket:
         print("### closed ###")
 
 
-    def get_a_ws(self,url,on_message,message,cookies={},proxies={}):
+    def get_a_ws(self,url,on_message,message,proxies={}):
         self.ws = websocket.WebSocketApp(url,
-                                  cookie=cookies,
                                   on_message = on_message,
                                   on_error = self.on_error,
                                   on_close = self.on_close,
@@ -159,7 +292,6 @@ class my_websocket:
 
 
     def send_message(self):
-        print(self.message,'---')
         try:
             if isinstance(self.message,str):
                 self.ws.send(self.message)
@@ -185,9 +317,10 @@ class my_websocket:
 
 
 
-
-
 def count_time(func):
+    """
+    func wrap , used to evaluate how long a function takes.
+    """
     def int_time(*args, **kwargs):
         start_time = time.time()  
         res = func(*args, **kwargs)
@@ -199,11 +332,12 @@ def count_time(func):
 
 
 
-
 TIMEOUT = 4
 @count_time
 def json_download(url,method='get',data={},params={},headers={},cookies={},proxies={},retry=3,verify=False,timeout=TIMEOUT):
-
+    """
+    download func ,return a list or dict object
+    """
     while  retry:
         try:
             if method == 'post':
@@ -229,7 +363,9 @@ def json_download(url,method='get',data={},params={},headers={},cookies={},proxi
 
 @count_time
 def html_download(url,method='get',data={},params={},headers={},cookies={},proxies={},retry=3,verify=False,timeout=TIMEOUT):
-
+    """
+    download func ,return a html text
+    """
     while  retry:
         try:
             if method == 'post':
