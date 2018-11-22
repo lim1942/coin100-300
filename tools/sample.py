@@ -14,6 +14,7 @@ TickerItem = TickerItem + '_' + file_name
 TradeItem = TradeItem + '_' + file_name
 Symbols = Symbols + '_' + file_name
 
+#specify rabbit mq url
 rabbitmq_url = 'amqp://guest:123456@127.0.0.1:5672'
 
 
@@ -27,14 +28,14 @@ def parse(exchange_id,exchange_name=file_name):
 
     def get_symbols():
         map_dict = dict()
-        # 1
+        # 1 config symbols url
         url = 
         res = json_download(url)
-        # 2
+        # 2 config symbols result
         res = 
         symbols = []
         for i in res:
-            #4
+            #3 config symbols subject
             subject = i[]
             symbols.append(subject)
         symbols_message = my_format_obj.format_symbols(exchange_id, symbols, exchange_name)
@@ -44,16 +45,16 @@ def parse(exchange_id,exchange_name=file_name):
 
 
     def get_tickers():
-        # 1
+        # 4 config tikers url
         url = 
         res = json_download(url)
-        # 2
+        # 5 config tickers result
         res = 
         ts = my_format_obj.get_13_str_time()
         for i in res:
-            #3
+            # 6 config tickers subject
             subject = i[]
-            #4
+            # 7 config tickers price
             price = i[]
             # ts = my_format_obj.get_13_str_time(i[])
             unit = my_format_obj.get_unit(price)
@@ -78,5 +79,6 @@ def parse(exchange_id,exchange_name=file_name):
 
 
 if __name__ == '__main__':
+    # 0 config market`s exchange_id
     exchange_id = 
     parse(exchange_id)

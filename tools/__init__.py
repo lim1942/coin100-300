@@ -7,11 +7,13 @@ import requests
 import traceback
 import websocket
 
+# clear requests`s ssl3 warning
 requests.packages.urllib3.disable_warnings()
 
 
-
+# Global rabbit-mq url, use it send message to rabbit mq
 rabbitmq_url = 'amqp://guest:123456@127.0.0.1:5672'
+# Global rebbit-mq  (exchange-queue-routing_key)  value.
 DepthItem = 'DepthItem'
 TickerItem = 'TickerItem'
 TradeItem = 'TradeItem'
@@ -19,12 +21,14 @@ KLineDayItem = 'KLineDayItem'
 InfoItem = 'InfoItem'
 Symbols = 'Symbols'
 
+# Global socket proxies, use it to across The Great Wall
 SOCK_PROXIES = {
 "http": "socks5://127.0.0.1:1080",
 'https': 'socks5://127.0.0.1:1080'
 }
 
 
+# Global header in http access
 HEADERS = {
 "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
 }
@@ -44,7 +48,7 @@ class my_mq:
         self.channel = None
 
 
-    def create_channel(self, exchange='', queue='', routing_key='', type='direct', durable=False):
+    def create_channel(self, _type='direct', durable=False):
         """
         Create a channel
         """
@@ -52,9 +56,9 @@ class my_mq:
             try:
                 connection = pika.BlockingConnection(pika.URLParameters(self.rabbitmq_url))
                 channel = connection.channel()
-                channel.exchange_declare(exchange=exchange, exchange_type=type)
-                channel.queue_declare(queue=queue, durable=durable)
-                channel.queue_bind(exchange=exchange, queue=queue, routing_key=routing_key)
+                channel.exchange_declare(exchange=self.exchange, exchange_type=_type)
+                channel.queue_declare(queue=self.queue, durable=durable)
+                channel.queue_bind(exchange=self.exchange, queue=self.queue, routing_key=self.routing_key)
                 self.channel = channel
                 break
             except:
@@ -63,22 +67,19 @@ class my_mq:
                 time.sleep(5)
 
 
-    def send_message(self,message, routing_key='', exchange='', properties=pika.BasicProperties(delivery_mode=2, content_type='application/json'), mandatory=False):
+    def send_message(self,message,properties=pika.BasicProperties(delivery_mode=2, content_type='application/json'), mandatory=False):
         """
         Use the created channel to send message in specified (exchange , queue, routing-key).
         """
         retry =3 
-        if (not routing_key) or (not exchange):
-            routing_key = self.routing_key
-            exchange = self.exchange
         while retry:
             try:
                 if not self.channel:
-                    self.create_channel(self.exchange,self.queue,self.routing_key)
+                    self.create_channel()
                 if mandatory:
                     self.channel.confirm_delivery()
-                self.channel.basic_publish(exchange=exchange,
-                                      routing_key=routing_key,
+                self.channel.basic_publish(exchange=self.exchange,
+                                      routing_key=self.routing_key,
                                       body=message,
                                       properties=properties,
                                       mandatory=mandatory,
@@ -86,6 +87,7 @@ class my_mq:
                 return True
             except Exception as e:
                 print('MQ server error !!!!!',e)
+                time.sleep(1)
                 retry -=1
         return False
 
@@ -93,7 +95,6 @@ class my_mq:
 
 class my_format:
     """A class contain some useful script"""
-
 
     def conver_num_math(self,_in):
         """
@@ -270,28 +271,44 @@ def create_ws(url, header=None, cookie=None):
 
 class my_websocket:
     """
-    Rerurn a long-connected websocket 
+    Long-connected websocket class,use it`s obj to
+    creat websocket,send message,handle receved message etc
     """
 
-    def on_error(self,ws, error):
+    def __on_error(self,ws, error):
+        """
+        handle error situation
+        """
         print(error)
 
     
-    def on_close(self):    
+    def __on_close(self):   
+        """
+        handle close situation
+        """    
         print("### closed ###")
 
 
     def get_a_ws(self,url,on_message,message,proxies={}):
+        """
+        create a websocket,you need specify :
+            url: websocket connect to
+            on_message: a func handle received message,
+            message: websocket send  to server
+        """        
         self.ws = websocket.WebSocketApp(url,
                                   on_message = on_message,
-                                  on_error = self.on_error,
-                                  on_close = self.on_close,
+                                  on_error = self.__on_error,
+                                  on_close = self.__on_close,
                                   )
         self.message = message
         return True
 
 
     def send_message(self):
+        """
+        send message by created websocket
+        """          
         try:
             if isinstance(self.message,str):
                 self.ws.send(self.message)
@@ -304,12 +321,18 @@ class my_websocket:
 
 
     def run(self,inter=60,timeout=59):
+        """
+        run websocket once
+        """          
         self.ws.on_open = self.send_message
         self.ws.run_forever(ping_interval=inter,ping_timeout=timeout)
 
 
 
     def run_always(self,inter=60,timeout=59):
+        """
+        run websocket always
+        """        
         self.ws.on_open = self.send_message
         while  1:
             self.ws.run_forever(ping_interval=inter,ping_timeout=timeout)
