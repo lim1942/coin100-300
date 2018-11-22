@@ -51,13 +51,22 @@ class my_mq:
     def create_channel(self, _type='direct', durable=False):
         """
         Create a channel
+        1.direct模式: 根据 exchange发送时的routing_key 和queue的routing_key 判定应该将数据发送至指定队列。
+        2.topic模式: 可以让队列绑定几个模糊的关键字，之后发送者将数据发送到exchange，exchange将传入”路由值“和 ”关键字“进行匹配，匹配成功，则将数据发送到指定队列。
+        3.fanout：广播类型，exchage将消息发送给所有queue，如果某个消费者没有收到当前消息，就再也收不到了
+        durable: 让队列queue中的消息持久化
         """
         while 1:
             try:
+                # url密码的形式链接服务器
                 connection = pika.BlockingConnection(pika.URLParameters(self.rabbitmq_url))
+                # 创建一个channel
                 channel = connection.channel()
+                # 在channel上申明exchange
                 channel.exchange_declare(exchange=self.exchange, exchange_type=_type)
+                # 在channel上申明queue
                 channel.queue_declare(queue=self.queue, durable=durable)
+                # 把申明的queue绑定到exchange上
                 channel.queue_bind(exchange=self.exchange, queue=self.queue, routing_key=self.routing_key)
                 self.channel = channel
                 break
@@ -70,6 +79,11 @@ class my_mq:
     def send_message(self,message,properties=pika.BasicProperties(delivery_mode=2, content_type='application/json'), mandatory=False):
         """
         Use the created channel to send message in specified (exchange , queue, routing-key).
+        1.message: 待发送的消息
+        2.properties: 使生产者的消息或任务持久化存储
+        3.mandatory: 当mandatory参数设为true时，交换器无法根据自身的类型和路由键找到一个符合条件的队列，
+                    那么RabbitMQ会调用Basic.Return命令将消息返回给生产者。当mandatory参数设置为
+                    false时，出现上述情形，则消息直接被丢弃。
         """
         retry =3 
         while retry:
@@ -77,7 +91,10 @@ class my_mq:
                 if not self.channel:
                     self.create_channel()
                 if mandatory:
+                    # exchange的confirm模式：投递失败会返回False，成功返回True，如果队列不存在，
+                    # 交换机会叫消息丢掉，但不会通知生产者；如果交换机不存在，会报错；
                     self.channel.confirm_delivery()
+                # 在上面申明的exchangge上，指定routing_key发送消息,会把消息发到匹配的queue上
                 self.channel.basic_publish(exchange=self.exchange,
                                       routing_key=self.routing_key,
                                       body=message,
@@ -403,11 +420,6 @@ def html_download(url,method='get',data={},params={},headers={},cookies={},proxi
         except Exception as e:
             print(e)
             retry -=1
-
-
-
-
-
 
 
 
