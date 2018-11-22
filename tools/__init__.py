@@ -191,7 +191,7 @@ class my_format:
         return str(timestamp)
 
 
-    def convert_gmt_to_13stamp(self,t,tz=0):
+    def get_13_str_time_bygmt(self,t,tz=0):
         """
         Convert datetime to timestamp , be sure the datetime is a gmt/utc time.
         Because time.mktime() funcion just can convert an local-datetime to 
@@ -224,7 +224,7 @@ class my_format:
         return str(timestamp)
 
 
-    def convert_loc_to_13stamp(self,t):
+    def get_13_str_time_byloc(self,t):
         """
         Convert datetime to stamp , be sure datetime is your local time.
         """       

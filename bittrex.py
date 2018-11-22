@@ -44,11 +44,10 @@ def parse(exchange_id,exchange_name=file_name):
         url = 'https://www.bittrex.com/api/v2.0/pub/Markets/GetMarketSummaries'
         res = json_download(url)
         res = res['result']
-        ts = my_format_obj.get_13_str_time()
         for i in res:
             subject = subject = '^'.join(i['Summary']['MarketName'].split('-')[::-1]).upper()
             price = i['Summary']['Last']
-            # ts = my_format_obj.get_13_str_time(i[])
+            ts = my_format_obj.get_13_str_time_bygmt(i['Summary']['TimeStamp'])
             unit = my_format_obj.get_unit(price)
             ticker_message = my_format_obj.format_tick(exchange_name, subject, exchange_id, price, unit, ts)
             tickers_mq.send_message(ticker_message)
