@@ -170,12 +170,10 @@ class my_format:
         t = t.replace('.','')
         if len(t) > 13:
             return t[:13]
-        elif len(t) == 13:
-            return t
         else:
             while len(t) < 13:
                 t += '0'
-            return t
+        return t
 
 
     def __conver_to_13stamp(self,t):
@@ -229,15 +227,7 @@ class my_format:
 
         # take out timezone in timestamp
         time_zone_h = time.strftime('%z', time.localtime())[:3]
-        h = int(re.findall(r'(\d+)',time_zone_h)[0])
-        ss = h * 3600 * 1000
-        if '+' in time_zone_h:
-            timestamp = timestamp + ss
-        elif '-' in time_zone_h:
-            timestamp = timestamp - ss
-
-        # handle specify timezone num
-        timestamp = timestamp - tz * 3600 * 1000
+        timestamp = timestamp + (int(time_zone_h) - tz) * 3600 * 1000
 
         return str(timestamp)
 
