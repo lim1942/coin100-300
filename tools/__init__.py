@@ -202,7 +202,7 @@ class my_format:
             num_behind_point = '000'
 
         # convert time tuple to stamp
-        num_list = list(map(lambda x:int(float(x)),re.findall(r'([\d\.]+)',t)))
+        num_list = list(map(lambda x:int(x),re.findall(r'(\d+)',t)))
         time_tuple = tuple(num_list[:6]+[0,0,0])
         timestamp = int(str(int(time.mktime(time_tuple)))[:10] + num_behind_point)        
 
