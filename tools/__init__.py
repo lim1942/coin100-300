@@ -51,8 +51,10 @@ class my_mq:
     def create_channel(self, _type='direct', durable=False):
         """
         Create a channel
-        1.direct: A queue can bind one routing_key，Messages on switches are sent to queues with the same routing_key.
-        2.topic: A queue can bind some routing_key，Messages on switches are sent to queues with the same routing_key.
+        1.direct: A queue can bind one routing_key，Messages on switches 
+            are sent to queues with the same routing_key.
+        2.topic: A queue can bind some routing_key，Messages on switches 
+            are sent to queues with the same routing_key.
         3.fanout：Broadcasting，message on exchange will send to every queue.
             If a message is not received by the consumer, it will be discarded.
         durable: If True, made message Persistence in queue.
@@ -138,7 +140,7 @@ class my_format:
         price = self.conver_num_math(price)
         if math.modf(float(price))[0] != 0:
             if price_decimal is None:
-                return '0.' + '1'.zfill(len(self.conver_num_math(price).split('.')[-1]))
+                return '0.'+'1'.zfill(len(self.conver_num_math(price).split('.')[-1]))
         return '1'
 
 
@@ -149,7 +151,9 @@ class my_format:
         if not isinstance(symbols,list):
             print('bad symbols !!! error 001')
             return
-        return json.dumps({"exchange_id": exchange_id, "symbols": symbols, "item_type": "Symbols_"+exchange_name})
+        return json.dumps({"exchange_id": exchange_id,
+                           "symbols": symbols,
+                            "item_type": "Symbols_"+exchange_name})
 
 
     def format_tick(self,exchange_name,subject,exchange_id,price,unit,ts):
@@ -157,7 +161,12 @@ class my_format:
         Retrun a formated ticker-string
         """        
         price =self.conver_num_math(price)
-        return json.dumps({"item_type": "TickerItem_"+exchange_name, "subject": subject, "exchange_id": exchange_id, "price": price, "unit": unit, "ts": ts})
+        return json.dumps({"item_type": "TickerItem_"+exchange_name,
+                           "subject": subject, 
+                           "exchange_id": exchange_id, 
+                           "price": price,
+                           "unit": unit, 
+                           "ts": ts})
 
 
     def get_13_str_time(self,t=None):
@@ -212,11 +221,12 @@ class my_format:
     def get_13_str_time_bygmt(self,t,tz=0):
         """
         Convert datetime to timestamp , be sure the datetime is a gmt/utc time.
-        Because time.mktime() funcion just can convert an local-datetime to 
+        Because time.mktime() funcion just can convert a local-datetime to 
         timestamp,but there is a gmt-datetime ,so we need to correction the 
         timestamp (take out timezone) after a convertion.
         param    t : "2018-10-17 T 18:43:03.213"(like this)
-                 tz : 8 (an timezone num between [-12 to 12],convert gmt-x-timezone to gmt-0-timezone)
+                 tz : 8 (an timezone num between [-12 to 12],
+                      convert gmt-x-timezone to gmt-0-timezone)
         return a 13-lens timestamp
         """
 
@@ -239,7 +249,6 @@ class my_format:
         Convert datetime to stamp , be sure datetime is your local time.
         Return a 13-lens timestamp
         """       
-
         try:
             return self.__conver_to_13stamp(t)
         except:
